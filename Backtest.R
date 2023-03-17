@@ -23,27 +23,7 @@
 # ******************************************************************************
 # Importação das Bases de dados Economática 
 # ******************************************************************************
-  path_BD <- "C:\\Users\\eduar\\OneDrive\\Área de Trabalho\\TCC\\Data_Base\\"
-  
-  Data_Base <- list(
-    Cadastros = read_excel(paste(path_BD,"BD.Screen.Mom.xlsx", sep = ""), "Infos"),
-    Price = read_excel(paste(path_BD,"BD.Screen.Mom.xlsx", sep = ""), "Cotações", col_type = c("date", rep("numeric", 847))),                         # Preços mensais consolidado
-    Liquidez = merge(read_excel(paste(path_BD,"BD.Liquidez.Active.xlsx", sep = ""), "Planilha3", col_types =c("date", rep("numeric", 398))),          # Volume necociado diário (Ativo)
-                     read_excel(paste(path_BD,"BD.Liquidez.Canceled.xlsx", sep = ""), "Stock Liquidity", col_types = c("date", rep("numeric",449)))), # Volume necociado diário (Cancelados)
-    Benchmarks = read_excel(paste(path_BD,"BD.Benchmark.xlsx", sep = ""), "Planilha3", col_types = c("date", rep("numeric", 6))),                     # Índices para Benchmark
-    PriceToBook = read_excel(paste(path_BD,"BD.MB_12.xlsx", sep = ""), "Planilha3", col_types = c("date", rep("numeric", 847))),                         # Índice P/VPL
-    PriceToEarnings = read_excel(paste(path_BD,"BD.PE_12.xlsx", sep = ""), "Planilha3", col_types = c("date", rep("numeric", 847))),                     # Índice P/L
-    EarningsYeald =  read_excel(paste(path_BD,"BD.EY_12.xlsx", sep = ""), "Planilha3", col_types = c("date", rep("numeric", 847))),                     # Índice EV/EBIT
-    MktCap = read_excel(paste(path_BD,"BD.MktCap.xlsx", sep = ""),"MarketCap"))                                                                       # Capitalização de mercado
-    
-  remove(path_BD)
 
-## Formatação dos dados
-  Data_Base[["Cadastros"]] <- Data_Base[["Cadastros"]][Data_Base$Cadastros$`É BDR?`==0,]                                 # Remove BDRs
-  Data_Base[["Cadastros"]] <- subset(Data_Base[["Cadastros"]], !(Data_Base$Cadastros$`Data do Início da Série` %in% NA)) # Remove ativos que não apresetnam série de dados
-  
-  save(Data_Base, file = "DB.RData")
-  
   load("DB.RData")
   
 # Formatação XTS
@@ -59,15 +39,8 @@
   names(xts) <- c("Price",  "Benchmarks", "Liquidez", "PriceToBook", "PriceToEarnings", "EarningsYeald", "MktCap", "Returns", "Volume Médio")
   
   # Cálculo Momentum
-  formation.periods <- c(1:12)
 
   load("ROC.RData")
-  
-  roc.mom <- NULL
-  for (i in formation.periods){
-    roc.mom[[i]] <- rollapply(xts$Returns, width = i, function(y) tail(cumprod(y+1)-1,1))
-  }
-  save(roc.mom, file = "ROC.RData")
   
 # ******************************************************************************  
 # Funções Utilizadas
@@ -439,8 +412,6 @@
   
   #H0 = There is Homoscedasticity
   bptest(fit)
-
-
 
 # Estatísiticas básicas --------------------------------------------------------
   BasicStat <- NULL
