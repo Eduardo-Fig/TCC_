@@ -21,10 +21,10 @@
 
 
 # ******************************************************************************
-# Importação das Bases de dados Economática 
+# Importação das Bases de dados 
 # ******************************************************************************
 
-  load("DB.RData")
+  load("DB.RData")  # Dados Economática 
   
 # Formatação XTS
   xts <- lapply(Data_Base[c("Price",  "Benchmarks", "Liquidez", "PriceToBook", "PriceToEarnings", "EarningsYeald", "MktCap")], 
@@ -38,9 +38,12 @@
   
   names(xts) <- c("Price",  "Benchmarks", "Liquidez", "PriceToBook", "PriceToEarnings", "EarningsYeald", "MktCap", "Returns", "Volume Médio")
   
-  # Cálculo Momentum
-
-  load("ROC.RData")
+# Cálculo Momentum
+  formation.periods <- c(1:12)
+  roc.mom <- NULL
+  for (i in formation.periods){
+    roc.mom[[i]] <- rollapply(xts$Returns, width = i, function(y) tail(cumprod(y+1)-1,1))
+  }
   
 # ******************************************************************************  
 # Funções Utilizadas
@@ -52,7 +55,7 @@
   FilterQuantile <- function(Dados,nq, nquantil){
     
     # Dados = xts/data frame com os dados base para o flitro
-    # n = quantil de corte. Seleção considera quantil iguais ou acima do valor indicado
+    # nq = quantil de corte. Seleção considera quantil iguais ou acima do valor indicado
     # nquantil = número de quantis a serem considerados
     
     #REMOVER - lag.Dados <- lag.xts(Dados, k = 1, na.pad = FALSE)
@@ -198,7 +201,7 @@
   BacktestValue <- function(returns, Liquidity = NULL, MktCap = NULL, Factor,  n){
     # OBS: base mensal
     # n = holding periods 
-    # returns = df com o retorno mensal de todo universo de ativos
+    # returns = xts com o retorno mensal de todo universo de ativos
     # Liquidity = xts de Volume médio diário 
     # MktCap = xts de Market Cap 
     # Factor = xts do múltiplo relativo ao Fator
@@ -335,7 +338,7 @@
 
 # CAPM -------------------------------------------------------------------------
   
-  retorno <- log(Momentum$Q5$`Formation:6`$`6 / 1`+1)
+  retorno <- log(Momentum$Q5$`Formation:4`$`4 / 4`+1)
   bm <- log(xts$Benchmarks$`IBXX<XBSP>`[paste(start(retorno),"/", end(retorno), sep = "")]+1)
   rf <- log(xts$Benchmarks$`CDI Acumulado<BraNa>`[paste(start(retorno),"/", end(retorno), sep = "")]+1)
   
