@@ -8,9 +8,8 @@ tabela.estatisticas <- function(r, rf){
   # CAGR
   # Desvio Padrão
   # Sharpe Ratio
-  # Worst DrawDawn
+  # Worst DrawDown
   # Worst month Return
-  # Best month Return
  
   rf <- rf[paste(start(r), "/", end(r), sep ="")]
   rf <- as.numeric(mean(rf))
@@ -29,7 +28,7 @@ tabela.estatisticas <- function(r, rf){
   row.names(x) <- c("Retorno Médio",
                     "Desvio Padrão",
                     "Sharpe", 
-                    "Worst DrawDawn")
+                    "Worst DrawDown")
   
   
   
